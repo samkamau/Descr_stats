@@ -1763,6 +1763,22 @@ putexcel AC13=matrix(unmettot_mar_ul)
 
 
 
+***********************************************************************************
+*** 		KENYA
+***********************************************************************************
+capture clear all
+local excel "KE_KeyIndicators.xlsx"
+local excel_sheet "CPR, mCPR, unmet need"
+putexcel set "`excel'", modify sheet("`excel_sheet'")
+
+***** ROUND 1
+clear
+use "~/Dropbox (Gates Institute)/08_Kenya/PMAKE_Datasets/Round1/Final_PublicRelease/HHQ/PMA2014_KER1_HHQFQ_v4_13Aug2018/PMA2014_KER1_HHQFQ_v4_13Aug2018.dta", clear
+putexcel A8=("PMA2020")
+putexcel B8=("Round 1")
+putexcel C8=("9-10/2013")
+
+
 
 
 /*
