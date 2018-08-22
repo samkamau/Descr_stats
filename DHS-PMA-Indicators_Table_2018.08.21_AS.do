@@ -8,6 +8,7 @@
 *******************************************************************************/
 capture clear all
 cd "/Users/asiewe/Documents/Data Analysis/DHS-PMA-Indicators/Excel Output"
+*local filedir "/Users/asiewe/Documents/Data Analysis/DHS-PMA-Indicators/Descr_stats"
 
 /*
 ***********************************************************************************
@@ -1357,7 +1358,6 @@ putexcel Z12=matrix(unmettot_mar_percent)
 putexcel AA12=matrix(unmettot_mar_se)
 putexcel AB12=matrix(unmettot_mar_ll)
 putexcel AC12=matrix(unmettot_mar_ul)
-*/
 
 
 
@@ -1760,7 +1760,7 @@ putexcel AA13=matrix(unmettot_mar_se)
 putexcel AB13=matrix(unmettot_mar_ll)
 putexcel AC13=matrix(unmettot_mar_ul)
 
-
+*/
 
 
 ***********************************************************************************
@@ -1776,10 +1776,86 @@ clear
 use "~/Dropbox (Gates Institute)/08_Kenya/PMAKE_Datasets/Round1/Final_PublicRelease/HHQ/PMA2014_KER1_HHQFQ_v4_13Aug2018/PMA2014_KER1_HHQFQ_v4_13Aug2018.dta", clear
 putexcel A8=("PMA2020")
 putexcel B8=("Round 1")
-putexcel C8=("9-10/2013")
+putexcel C8=("5-7/2014")
+
+** COUNT - Female Sample - All / Married Women  **
+preserve
+gen FQresponse_1=1 if FRS_result==1 & HHQ_result==1 & (usual_member==1 | usual_member==3)
+collapse (count) FQresponse_1
+mkmat FQresponse_1
+putexcel D8=matrix(FQresponse_1)
+restore
+preserve
+gen FQresponse_1=1 if FRS_result==1 & HHQ_result==1 & (usual_member==1 | usual_member==3) & (FQmarital_status==1 | FQmarital_status==2)
+collapse (count) FQresponse_1
+mkmat FQresponse_1
+putexcel Q8=matrix(FQresponse_1)
+restore 
+
+*** Estimate Percentage and 95% CI
+keep if FRS_result==1 & HHQ_result==1 & (usual_member==1 | usual_member==3)
+egen all=tag(FQmetainstanceID)
+egen mar=tag(FQmetainstanceID) if (FQmarital_status==1 | FQmarital_status==2)
+
+svyset EA_ID [pw=FQweight], strata(strata) singleunit(scaled)
+foreach group in all mar {
+preserve
+	keep if `group'==1
+	foreach indicator in cp mcp unmettot {
+		svy: prop `indicator', citype(wilson)
+		matrix reference=r(table)
+		matrix `indicator'_`group'_percent=reference[1,2]*100	
+		matrix `indicator'_`group'_se=reference[2,2]*100
+		matrix `indicator'_`group'_ll=reference[5,2]*100
+		matrix `indicator'_`group'_ul=reference[6,2]*100
+		}	
+	restore
+	}
+run "/Users/asiewe/Documents/Data Analysis/DHS-PMA-Indicators/Descr_stats/Line8_stata2xcel.do"
 
 
 
+***** ROUND 2
+clear
+use "~/Dropbox (Gates Institute)/08_Kenya/PMAKE_Datasets/Round2/Final_PublicRelease/HHQ/PMA2014_KER2_HHQFQ_v2_13Aug2018/PMA2014_KER2_HHQFQ_v2_13Aug2018.dta", clear
+putexcel A9=("PMA2020")
+putexcel B9=("Round 2")
+putexcel C9=("11-12/2014")
+
+** COUNT - Female Sample - All / Married Women  **
+preserve
+gen FQresponse_1=1 if FRS_result==1 & HHQ_result==1 & (usual_member==1 | usual_member==3)
+collapse (count) FQresponse_1
+mkmat FQresponse_1
+putexcel D9=matrix(FQresponse_1)
+restore
+preserve
+gen FQresponse_1=1 if FRS_result==1 & HHQ_result==1 & (usual_member==1 | usual_member==3) & (FQmarital_status==1 | FQmarital_status==2)
+collapse (count) FQresponse_1
+mkmat FQresponse_1
+putexcel Q9=matrix(FQresponse_1)
+restore 
+
+*** Estimate Percentage and 95% CI
+keep if FRS_result==1 & HHQ_result==1 & (usual_member==1 | usual_member==3)
+egen all=tag(FQmetainstanceID)
+egen mar=tag(FQmetainstanceID) if (FQmarital_status==1 | FQmarital_status==2)
+
+svyset EA_ID [pw=FQweight], strata(strata) singleunit(scaled)
+foreach group in all mar {
+preserve
+	keep if `group'==1
+	foreach indicator in cp mcp unmettot {
+		svy: prop `indicator', citype(wilson)
+		matrix reference=r(table)
+		matrix `indicator'_`group'_percent=reference[1,2]*100	
+		matrix `indicator'_`group'_se=reference[2,2]*100
+		matrix `indicator'_`group'_ll=reference[5,2]*100
+		matrix `indicator'_`group'_ul=reference[6,2]*100
+		}	
+	restore
+	}
+run "/Users/asiewe/Documents/Data Analysis/DHS-PMA-Indicators/Descr_stats/Line9_stata2xcel.do"
 
 /*
 ***********************************************************************************
